@@ -1,2 +1,2 @@
 # latex
-Latex template project
+LaTeX template
