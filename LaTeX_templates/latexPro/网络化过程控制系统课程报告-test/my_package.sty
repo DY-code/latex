@@ -1,0 +1,55 @@
+% set latex version
+\NeedsTeXFormat{LaTeX2e}
+% package name and information
+\ProvidesPackage{my_package}[2024/03/16 my package]
+
+
+% Requeiried packages and preliminary definitions, needed by the options
+% 支持代码块
+\RequirePackage{listings}
+\RequirePackage[dvipsnames]{xcolor}
+% 中文支持
+\RequirePackage[UTF8]{ctex}	
+
+% 设置页面的环境，a4纸张大小，左右上下边距信息
+\RequirePackage[a4paper, left=31.8mm, right=31.8mm, top=25.4mm, bottom=25.4mm]{geometry}
+
+% pdf调用 封面
+\RequirePackage{pdfpages}
+% 绘制三线表
+\RequirePackage{booktabs}    
+% 消除警告
+\RequirePackage{lmodern}
+% 三线表内使用单元格
+\RequirePackage{makecell}
+
+% 导入图片
+\RequirePackage{caption}
+\RequirePackage{graphicx, subfig}
+% 防止图片乱跑
+\RequirePackage{float}
+
+% 解决参考文献中作者名之间的连接词异常问题
+\RequirePackage{gbt7714}
+% 可在main.tex文件中调用以下代码以设置引用文献格式
+% \bibliographystyle{gbt7714-numerical}
+
+% 代码块的基本设置
+\lstset{
+    language=Python, % 设置语言
+    basicstyle=\ttfamily, % 设置字体族
+    breaklines=true, % 自动换行
+    keywordstyle=\bfseries\color{NavyBlue}, % 设置关键字为粗体，颜色为 NavyBlue
+    morekeywords={}, % 设置更多的关键字，用逗号分隔
+    emph={self}, % 指定强调词，如果有多个，用逗号隔开
+    emphstyle=\bfseries\color{Rhodamine}, % 强调词样式设置
+    commentstyle=\itshape\color{black!50!white}, % 设置注释样式，斜体，浅灰色
+    stringstyle=\bfseries\color{PineGreen!90!black}, % 设置字符串样式
+    columns=flexible,
+    numbers=left, % 显示行号在左边
+    numbersep=2em, % 设置行号的具体位置
+    numberstyle=\footnotesize, % 缩小行号
+    frame=single, % 边框
+    framesep=1em, % 设置代码与边框的距离
+    showstringspaces=false, % 不显示字符串中的空格
+}

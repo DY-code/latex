@@ -1,0 +1,27 @@
+\begin{thebibliography}{1}
+
+\bibitem{ShafieeFast}
+Mohammad~Javad Shafiee, Brendan Chywl, Francis Li, and Alexander Wong.
+\newblock Fast yolo: A fast you only look once system for real-time embedded
+  object detection in video.
+
+\bibitem{redmon2016you}
+Joseph Redmon, Santosh Divvala, Ross Girshick, and Ali Farhadi.
+\newblock You only look once: Unified, real-time object detection.
+\newblock In {\em Proceedings of the IEEE conference on computer vision and
+  pattern recognition}, pages 779--788, 2016.
+
+\bibitem{lin2017feature}
+Tsung-Yi Lin, Piotr Doll{\'a}r, Ross Girshick, Kaiming He, Bharath Hariharan,
+  and Serge Belongie.
+\newblock Feature pyramid networks for object detection.
+\newblock In {\em Proceedings of the IEEE conference on computer vision and
+  pattern recognition}, pages 2117--2125, 2017.
+
+\bibitem{papageorgiou1998general}
+Constantine~P Papageorgiou, Michael Oren, and Tomaso Poggio.
+\newblock A general framework for object detection.
+\newblock In {\em Sixth International Conference on Computer Vision (IEEE Cat.
+  No. 98CH36271)}, pages 555--562. IEEE, 1998.
+
+\end{thebibliography}

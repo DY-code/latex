@@ -1,0 +1,37 @@
+\documentclass[UTF8]{article}
+% 中文支持
+\usepackage[UTF8]{ctex}	
+
+\usepackage{my_package}
+
+\begin{document}
+
+hello world\cite{MOTO201811002}
+
+% 导入代码
+\begin{lstlisting}[language=Python]
+print("hello world")
+\end{lstlisting}
+
+% unsrt:保持引用次序
+\bibliographystyle{unsrt}
+% % 插入ref.bib文件
+\bibliography{ref}
+
+\begin{table}[H] % 防止表格乱跑
+\centering % 居中
+\begin{tabular}{cccccc} % 指明列数
+    \toprule % 顶部粗线
+    阶段 & \makecell{第一阶段\\（70年代以前）} & \makecell{第二阶段\\（70 $\sim$ 80年代）} & \makecell{第三阶段\\（90年代以后）} \\
+    \midrule % 中间细线
+    控制理论 & 经典控制理论 & 现代控制理论 & \makecell{控制论、信息论、系统\\论、人工智能等学科交叉} \\
+    控制工具 & \makecell{常规仪表\\（气动、液动、电动）} & 分布式控制计算机（DCS） & 计算机网络 \\
+    控制要求 & 安全，平稳 & 优质、高产、低消耗 & \makecell{市场预测、快速响应、柔\\性生产、创新管理} \\
+    控制水平 & 简单控制系统 & 先进控制系统 & 综合自动化（CIPS） \\
+    \bottomrule % 底部粗线
+\end{tabular}
+\caption{过程控制发展的三个阶段} % 标题
+\end{table}
+
+
+\end{document}

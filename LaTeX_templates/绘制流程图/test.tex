@@ -1,0 +1,270 @@
+\documentclass[UTF8]{article}
+% 中文支持
+\usepackage[UTF8]{ctex}	
+% pdf调用 封面
+\usepackage{pdfpages}
+% color宏包
+\usepackage{color}  
+% 导入图片
+\usepackage{caption}
+\usepackage{graphicx, subfig}
+% 防止图片乱跑
+\usepackage{float}
+% 支持数学符号
+\usepackage{amsmath}
+% 支持代码块
+\usepackage{listings}
+% pdf加入大纲
+\usepackage{hyperref}
+% 大纲去红框
+\hypersetup{hidelinks,
+	colorlinks=true,
+	allcolors=black,
+	pdfstartview=Fit,
+	breaklinks=true
+}
+
+% 绘制三线表
+\usepackage{booktabs}    
+% 消除警告
+\usepackage{lmodern}
+
+% 绘图
+\usepackage{tikz}
+\usetikzlibrary{positioning, shapes.geometric}
+\tikzstyle{bag} = [align=center]
+
+% 设置页面的环境，a4纸张大小，左右上下边距信息
+\usepackage[a4paper, left=31.8mm, right=31.8mm, top=25.4mm, bottom=25.4mm]{geometry}
+
+% 代码块的基本设置
+\lstset{
+ columns=fixed,       
+ numbers=left,                                        % 在左侧显示行号
+ numberstyle=\tiny\color{gray},                       % 设定行号格式
+ frame=none,                                          % 不显示背景边框
+ backgroundcolor=\color[RGB]{245,245,244},            % 设定背景颜色
+ keywordstyle=\color[RGB]{40,40,255},                 % 设定关键字颜色
+ numberstyle=\footnotesize\color{darkgray},           
+ commentstyle=\it\color[RGB]{0,96,96},                % 设置代码注释的格式
+ stringstyle=\rmfamily\slshape\color[RGB]{128,0,0},   % 设置字符串格式
+ showstringspaces=false,                              % 不显示字符串中的空格
+ language=matlab,                                        % 设置语言
+}
+
+\begin{document}
+
+% Newton-Raphson方法 电机辨识
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=15pt]
+    \node[draw, rounded corners] (start) {开始};
+    \node[draw, below=of start] (step_0) {获取系统输入$u$和输出$z$};
+    \node[draw, below=of step_0, text width=20em, align=center] (step_1) {设定初始估计值$\hat{\theta}(1),\ v(1),\ v(2),\ \dots,\ v(n)$和$\frac{\partial v(1)}{\partial\theta},\ \dots,\ \frac{\partial v(n)}{\partial\theta}$，并设置$j = 1$};
+    \node[draw, below=of step_1] (step_2) {计算误差$v(n+1),\ v(n+2),\ \dots,\ v(n+N)$};
+    \node[draw, below=of step_2] (step_3) {计算$\frac{\partial v(k)}{\partial \theta}|_{\theta = \hat{\theta}(j)}$};
+    \node[draw, below=of step_3, text width=20em, align=center] (step_4) {计算梯度矩阵$\frac{\partial J(\theta)}{\partial \theta}|_{\theta = \hat{\theta}(j)}$和$Hessian$矩阵$\frac{\partial^2 J(\theta)}{(\partial \theta)^2}|_{\theta = \hat{\theta}(j)}$};
+    \node[draw, below=of step_4, text width=20em, align=center] (step_5) {计算新的参数估计值$\hat{\theta}(j+1) = \hat{\theta}(j) - [\frac{\partial^2 J(\theta)}{(\partial \theta)^2}]^{-1}_{\theta = \hat{\theta}(j)} \cdot \frac{\partial J(\theta)}{\partial \theta}|_{\theta = \hat{\theta}(j)}$};
+    \node[draw, diamond, aspect=4, below=of step_5, text width=10em, align=center] (choice) {是否满足迭代停止条件？};
+    \node[draw, below=30pt of choice] (step_6) {取$n$个$v(k)$和$\frac{\partial v(k)}{\partial \theta}$作为下次迭代的初值};
+    \node[draw, below=of step_6] (step_7) {$j = j + 1$};
+    \node[draw, right=30pt of choice, text width=7em, align=center] (step_8) {输出$\hat{\theta}(j+1)$，停止计算};
+    \node[draw, rounded corners, below=15pt of step_7]  (end) {结束};
+    % dot
+    \coordinate [below=5pt of step_7] (dot1) {};
+    \coordinate [left=120pt of step_7] (dot2) {};
+
+    \draw[->] (start) -- (step_0);
+    \draw[->] (step_0) -- (step_1);
+    \draw[->] (step_1) -- (step_2);
+    \draw[->] (step_2) -- (step_3);
+    \draw[->] (step_3) -- (step_4);
+    \draw[->] (step_4) -- (step_5);
+    \draw[->] (step_5) -- (choice);
+    \draw[->] (choice) -- node[right] {否} (step_6);
+    \draw[->] (step_6) -- (step_7);
+    \draw[->] (choice) -- node[above] {是}  (step_8);
+    \draw[->] (step_8) -- (step_8|-dot1) -- (dot1) -> (end);
+
+    \draw[->] (step_7) -- (step_7-|dot2) -- (dot2|-step_2) -> (step_2);
+\end{tikzpicture}
+\caption{Newton-Raphson方法用于极大似然参数估计-程序框图}
+\end{figure}
+
+% 递推极大似然参数辨识 直流电机
+% \begin{figure}[H]
+% \centering
+% \begin{tikzpicture}[node distance=15pt]
+%     \node[draw, rounded corners] (start) {开始};
+%     \node[draw, below=of start] (step_1) {设定初始值$\hat{\theta}_0,\ P_0,\ v_0$};
+%     \node[draw, below=of step_1] (step_2) {构造初始向量$\psi(0)$，并设置$\varphi_1 = \psi(0),\ N = 0$};
+%     \node[draw, below=of step_2] (step_3) {计算$v_k$};
+%     \node[draw, below=of step_3] (step_4) {计算$r_k,\ P_k,\ \hat{\theta}_k$};
+%     \node[draw, diamond, aspect=4, below=of step_4, align=center] (choice) {是否满足迭代停止条件？};
+%     \node[draw, below=of choice] (step_5) {采集数据，构造$\psi(k)$};
+%     \node[draw, below=of step_5] (step_6) {计算$\varphi(k)$};
+%     \node[draw, below=of step_6] (step_7) {$k = k + 1$};
+%     \node[draw, rounded corners, below=of step_7] (end) {结束};
+%     \node[draw, right=1.5cm of choice, text width=4em, align=center] (step_8) {输出$\hat{\theta}_k$，停止计算};
+
+%     % dot
+%     \coordinate [left=3.6cm of step_7] (dot_1) {};
+%     \coordinate [below=7.5pt of step_7] (dot_2) {};
+%     \coordinate [below=7.5pt of step_1] (dot_3) {};
+
+
+%     \draw[->] (start) -- (step_1);
+%     \draw[->] (step_1) -- (step_2);
+%     \draw[->] (step_2) -- (step_3);
+%     \draw[->] (step_3) -- (step_4);
+%     \draw[->] (step_4) -- (choice);
+%     \draw[->] (choice) -- node[right, pos=0.5]{否} (step_5);
+%     \draw[->] (step_5) -- (step_6);
+%     \draw[->] (step_6) -- (step_7);
+%     \draw[->] (step_7) -- (dot_1) |- (dot_3);
+%     \draw[->] (choice) -- node[above, pos=0.5]{是} (step_8);
+%     \draw[->] (step_8) |- (dot_2) -- (end);
+% \end{tikzpicture}
+% \caption{title}
+% \end{figure}
+
+% 递推最小二乘参数辨识 直流电机
+% \begin{figure}[H]
+% \centering
+% \begin{tikzpicture}[node distance=15pt]
+%     \node[draw, rounded corners] (start) {开始};
+%     \node[draw, below=of start] (step_1) {获取系统输入$u$和输出$z$};
+%     \node[draw, below=of step_1] (step_2) {初始化待辨识参数矩阵$\hat{\theta}(0)$及其他算法参数};
+%     \node[draw, below=of step_2] (step_3) {计算$H(k),\ K(k),\ \theta(k),\ P(k)$};
+%     \node[draw, diamond, aspect=4, below=of step_3, align=center] (choice_1) {$\forall i:\ \max | \frac{\hat{\theta}_i(k) - \hat{\theta}_i(k-1)}{\hat{\theta}_i(k-1)} | < \varepsilon?$};
+%     \node[draw, diamond, aspect=3, below=of choice_1, align=center] (choice_2) {$k > L?$};
+%     \node[draw, left=of choice_1, text width=5em, align=center] (step_4) {$k = k + 1$};
+%     \node[draw, rounded corners, below=of choice_2] (end) {结束};
+
+%     % dot
+%     \coordinate [right=15pt of choice_1] (dot_1) {};
+%     \coordinate [below=5pt of choice_2] (dot_2) {};
+%     \coordinate [below=7.5pt of step_2] (dot_3) {};
+
+%     \draw[->] (start) -- (step_1);
+%     \draw[->] (step_1) -- (step_2);
+%     \draw[->] (step_2) -- (step_3);
+%     \draw[->] (step_3) -- (choice_1);
+%     \draw[->] (choice_1) -- node[right]{否} (choice_2);
+%     \draw[->] (choice_2) -- node[left]{是} (end);
+
+%     \draw[->] (choice_2) -- node[above]{否} (choice_2-|step_4) -> (step_4);
+%     \draw[->] (step_4) -- (step_4|-dot_3) -> (dot_3);
+%     \draw[->] (choice_1) -- node[above]{是} (dot_1) -- (dot_1|-dot_2) -- (dot_2) -> (end);
+% \end{tikzpicture}
+% \caption{title}
+% \end{figure}
+
+
+% \begin{tikzpicture}[node distance=15pt]
+%     \node[draw, rounded corners] (start) {开始};
+%     \node[draw, below=of start] (step_1) {产生输入数据$u$和输出数据$z$};
+%     \node[draw, below=of step_1] (step_2) {初始化$P(0),\ \theta(0),\ w,\ \varepsilon$};
+%     \node[draw, below=of step_2] (step_3) {计算$P(k),\ \theta(k),\ K(k)$};
+%     \node[draw, diamond, aspect=4, below=of step_3, align=center] (choice_1) {$\forall i:\ \max | \frac{\hat{\theta}_i(k) - \hat{\theta}_i(k-1)}{\hat{\theta}_i(k-1)} | < \varepsilon?$};
+%     \node[draw, diamond, aspect=3, below=of choice_1, align=center] (choice_2) {$k > L?$};
+%     \node[draw, left=of choice_1, , text width=10em, align=center] (step_4) {$\theta(k-1) = \theta(k)$ $P(k-1) = P(k)$};
+%     \node[draw, rounded corners, below=of choice_2] (end) {结束};
+
+%     % dot
+%     \coordinate [right=15pt of choice_1] (dot_1) {};
+%     \coordinate [below=5pt of choice_2] (dot_2) {};
+
+%     \draw[->] (start) -- (step_1);
+%     \draw[->] (step_1) -- (step_2);
+%     \draw[->] (step_2) -- (step_3);
+%     \draw[->] (step_3) -- (choice_1);
+%     \draw[->] (choice_1) -- node[right]{否} (choice_2);
+%     \draw[->] (choice_2) -- node[left]{是} (end);
+
+%     \draw[->] (choice_2) -- node[above]{否} (choice_2-|step_4) -> (step_4);
+%     \draw[->] (step_4) -- (step_4|-step_3) -> (step_3);
+%     \draw[->] (choice_1) -- node[above]{是} (dot_1) -- (dot_1|-dot_2) -- (dot_2) -> (end);
+% \end{tikzpicture}
+
+
+% \begin{figure}[H]
+% \begin{tikzpicture}[node distance=15pt]
+%     \node[draw, rounded corners] (start) {开始};
+%     \node[draw, below=of start, text width=20em, align=center] (step_1) {设定初始估计值$\hat{\theta}(1),\ v(1),\ v(2),\ \dots,\ v(n)$和$\frac{\partial v(1)}{\partial\theta},\ \dots,\ \frac{\partial v(n)}{\partial\theta}$，并设置$j = 1$};
+%     \node[draw, below=of step_1] (step_2) {计算误差$v(n+1),\ v(n+2),\ \dots,\ v(n+N)$};
+%     \node[draw, below=of step_2] (step_3) {计算$\frac{\partial v(k)}{\partial \theta}|_{\theta = \hat{\theta}(j)}$};
+%     \node[draw, below=of step_3, text width=20em, align=center] (step_4) {计算梯度矩阵$\frac{\partial J(\theta)}{\partial \theta}|_{\theta = \hat{\theta}(j)}$和$Hessian$矩阵$\frac{\partial^2 J(\theta)}{(\partial \theta)^2}|_{\theta = \hat{\theta}(j)}$};
+%     \node[draw, below=of step_4, text width=20em, align=center] (step_5) {计算新的参数估计值$\hat{\theta}(j+1) = \hat{\theta}(j) - [\frac{\partial^2 J(\theta)}{(\partial \theta)^2}]^{-1}_{\theta = \hat{\theta}(j)} \cdot \frac{\partial J(\theta)}{\partial \theta}|_{\theta = \hat{\theta}(j)}$};
+%     \node[draw, diamond, aspect=3, below=of step_5, text width=10em, align=center] (choice) {是否满足迭代停止条件？};
+%     \node[draw, below=30pt of choice] (step_6) {取$n$个$v(k)$和$\frac{\partial v(k)}{\partial \theta}$作为下次迭代的初值};
+%     \node[draw, below=of step_6] (step_7) {$j = j + 1$};
+%     \node[draw, right=30pt of choice, text width=7em, align=center] (step_8) {输出$\hat{\theta}(j+1)$，停止计算};
+%     \node[draw, rounded corners, below=15pt of step_7]  (end) {结束};
+%     % dot
+%     \coordinate [below=5pt of step_7] (dot1) {};
+%     \coordinate [left=120pt of step_7] (dot2) {};
+
+%     \draw[->] (start) -- (step_1);
+%     \draw[->] (step_1) -- (step_2);
+%     \draw[->] (step_2) -- (step_3);
+%     \draw[->] (step_3) -- (step_4);
+%     \draw[->] (step_4) -- (step_5);
+%     \draw[->] (step_5) -- (choice);
+%     \draw[->] (choice) -- node[right] {否} (step_6);
+%     \draw[->] (step_6) -- (step_7);
+%     \draw[->] (choice) -- node[above] {是}  (step_8);
+%     \draw[->] (step_8) -- (step_8|-dot1) -- (dot1) -> (end);
+
+%     \draw[->] (step_7) -- (step_7-|dot2) -- (dot2|-step_2) -> (step_2);
+% \end{tikzpicture}
+% \caption{title}
+% \end{figure}
+
+
+% \begin{tikzpicture}[node distance=15pt]
+%     \node[draw,] at (0,0) {\TeX};
+%     \node[draw, rounded corners] (start) {开始};
+%     \node[draw, below=of start] (step_1) {关闭看门狗};
+%     \node[draw, below=of step_1] (step_2) {定义堆栈指针};
+%     \node[draw, below=of step_2] (step_3) {调用主函数，跳转到C程序};
+%     \node[draw, below=of step_3, text width=12em, align=center] (step_4) {设置LED/按键端口为输出/输入属性，禁止上拉};
+%     % aspect:设置纵横比
+%     \node[draw, diamond, aspect=2, below=30pt of step_4] (choice) {是否有按键按下？};
+%     \node[draw, xshift=-5cm, yshift=-3cm, text width=6em, align=center] (step_5_1) at (choice) {按键1按下，翻转LED1};
+%     \node[draw, xshift=-1.7cm, yshift=-3cm, text width=6em, align=center] (step_5_2) at (choice) {按键2按下，翻转LED2};
+%     \node[draw, xshift=1.7cm, yshift=-3cm, text width=6em, align=center] (step_5_3) at (choice) {按键3按下，翻转LED3};
+%     \node[draw, xshift=5cm, yshift=-3cm, text width=6em, align=center] (step_5_4) at (choice) {按键4按下，翻转LED4};
+    
+%     定义坐标点
+%     \coordinate [below=20pt of choice] (dot1){};
+
+%     \node[xshift=1cm, yshift=-0.5cm]  {temp};
+%     \node[draw, right=30pt of choice]                   (step x)  {};
+%     \node[draw, rounded corners, below=20pt of choice]  (end)     {End};
+    
+%     \draw[->] (start) -- (step_1);
+%     \draw[->] (step_1) -- (step_2);
+%     \draw[->] (step_2) -- (step_3);
+%     \draw[->] (step_3) -- (step_4);
+%     \draw[->] (step_4) -- (choice);
+    
+
+%     \draw[->] (choice) -- node[right] {是} (dot1) -- (dot1 -| step_5_1) -> (step_5_1);
+%     \draw[->] (choice) -- (dot1) -- (dot1 -| step_5_2) -> (step_5_2);
+%     \draw[->] (choice) -- (dot1) -- (dot1 -| step_5_3) -> (step_5_3);
+%     \draw[->] (choice) -- (dot1) -- (dot1 -| step_5_4) -> (step_5_4);
+%     \draw[->] (choice) -- (step_5_2);
+%     \draw[->] (choice) -- (step_5_3);
+%     \draw[->] (choice) -- (step_5_4);
+
+
+%     % \draw[->] (step 1) -- (step 2);
+%     % \draw[->] (step 2) -- (choice);
+%     % \draw[->] (choice) -- node[left]  {Yes} (end);
+%     % \draw[->] (choice) -- node[above] {No}  (step x);
+%     % \draw[->] (step x) -- (step x|-step 2) -> (step 2);
+% \end{tikzpicture}
+
+
+\end{document}
